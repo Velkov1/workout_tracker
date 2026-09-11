@@ -9,6 +9,7 @@ import com.workout_tracker.workout.repository.ExerciseRepository;
 import com.workout_tracker.workout.repository.UserRepository;
 import com.workout_tracker.workout.repository.WorkoutRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ExerciseRepository exerciseRepository;
 
+    /*
     public UserResponse create(UserRequest request){
         User user = new User(
                 request.getName(),
@@ -28,6 +30,7 @@ public class UserService {
         );
         return toUserResponse(userRepository.save(user));
     }
+     */
 
     private UserResponse toUserResponse(User user){
         return new UserResponse(
@@ -38,12 +41,14 @@ public class UserService {
         );
     }
 
+    @PreAuthorize("@userSecurity.hasAccess(#id, authentication)")
     public UserResponse getUserById(Long id){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
         return toUserResponse(user);
     }
 
+    @PreAuthorize("@userSecurity.hasAccess(#id, authentication)")
     public UserResponse changeName(Long id, String name){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
@@ -51,6 +56,7 @@ public class UserService {
         return toUserResponse(userRepository.save(user));
     }
 
+    @PreAuthorize("@userSecurity.hasAccess(#id, authentication) or hasRole('ADMIN')")
     public void deleteUser(Long id){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + id));

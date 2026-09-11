@@ -2,11 +2,13 @@ package com.workout_tracker.workout.controller;
 
 import com.workout_tracker.workout.dto.WorkoutRequest;
 import com.workout_tracker.workout.dto.WorkoutResponse;
+import com.workout_tracker.workout.security.CustomUserDetails;
 import com.workout_tracker.workout.service.WorkoutService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
@@ -17,8 +19,9 @@ public class WorkoutController {
     private final WorkoutService workoutService;
 
     @PostMapping("")
-    public ResponseEntity<WorkoutResponse> create(@Valid @RequestBody WorkoutRequest request){
-        WorkoutResponse response = workoutService.create(request);
+    public ResponseEntity<WorkoutResponse> create(@Valid @RequestBody WorkoutRequest request,
+                                                  @AuthenticationPrincipal CustomUserDetails principal){
+        WorkoutResponse response = workoutService.create(request, principal.getUserId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

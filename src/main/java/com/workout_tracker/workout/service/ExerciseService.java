@@ -10,6 +10,7 @@ import com.workout_tracker.workout.model.User;
 import com.workout_tracker.workout.repository.ExerciseRepository;
 import com.workout_tracker.workout.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,6 +50,7 @@ public class ExerciseService {
         return toExerciseResponse(exerciseRepository.save(exercise));
     }
 
+    @PreAuthorize("@userSecurity.hasAccess(#userId, authentication)")
     public List<ExerciseResponse> getAllByUser(Long userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
         return user.getWorkouts().stream()

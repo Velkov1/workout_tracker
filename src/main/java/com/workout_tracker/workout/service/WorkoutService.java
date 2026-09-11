@@ -12,6 +12,7 @@ import com.workout_tracker.workout.repository.ExerciseRepository;
 import com.workout_tracker.workout.repository.UserRepository;
 import com.workout_tracker.workout.repository.WorkoutRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -26,20 +27,19 @@ public class WorkoutService {
     private final ExerciseRepository exerciseRepository;
 
 
-    public WorkoutResponse create(WorkoutRequest request){
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + request.getUserId()));
-        Set<Exercise> exercises = new HashSet<>();
-        for(Long id : request.getExerciseIds()){
+    public WorkoutResponse create(WorkoutRequest request, Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found_ " + userId));
+        HashSet<Exercise> exercises = new HashSet<>();
+        for(Long id: request.getExerciseIds()){
             Exercise exercise = exerciseRepository.findById(id)
-                    .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found: " + id));
+                    .orElseThrow(() -> new ExerciseNotFoundException("Exercise not found:" + id));
             exercises.add(exercise);
         }
         Workout workout = new Workout(
                 request.getName(),
                 user,
                 exercises
-
         );
         return toWorkoutResponse(workoutRepository.save(workout));
     }
@@ -54,10 +54,12 @@ public class WorkoutService {
         );
     }
 
+    @PreAuthorize("@workoutSecurity.isOwner(#id, authentication)")
     public WorkoutResponse getWorkoutById(Long id){
         return toWorkoutResponse(workoutRepository.findById(id).orElseThrow(() -> new WorkoutNotFoundException("Workout not found: " + id)));
     }
 
+    @PreAuthorize("@workoutSecurity.isOwner(#workoutId, authentication)")
     public WorkoutResponse addExerciseToWorkout(Long workoutId, Long exerciseId){
         Workout workout = workoutRepository.findById(workoutId).orElseThrow(() -> new WorkoutNotFoundException("Workout not found: " + workoutId));
         Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> new ExerciseNotFoundException("Exercise not found: " + exerciseId));
@@ -65,6 +67,7 @@ public class WorkoutService {
         return toWorkoutResponse(workoutRepository.save(workout));
     }
 
+    @PreAuthorize("@workoutSecurity.isOwner(#workoutId, authentication)")
     public WorkoutResponse removeExerciseFromWorkout(Long workoutId, Long exerciseId){
         Workout workout = workoutRepository.findById(workoutId).orElseThrow(() -> new WorkoutNotFoundException("Workout not found: " + workoutId));
         Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> new ExerciseNotFoundException("Exercise not found: " + exerciseId));
@@ -75,6 +78,7 @@ public class WorkoutService {
         return toWorkoutResponse(workout);
     }
 
+    @PreAuthorize("@userSecurity.hasAccess(#userId, authentication)")
     public List<WorkoutResponse> getAllByUser(Long userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
         return user.getWorkouts().stream().map(this::toWorkoutResponse).toList();

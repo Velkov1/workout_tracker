@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({WorkoutNotFoundException.class, UserNotFoundException.class, ExerciseNotFoundException.class})
+    @ExceptionHandler({WorkoutNotFoundException.class, UserNotFoundException.class, ExerciseNotFoundException.class,
+            UsernameNotFoundException.class, UsernameAlreadyExistingException.class, WrongPasswordException.class})
     public ResponseEntity<String> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
