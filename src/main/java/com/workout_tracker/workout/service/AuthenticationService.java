@@ -4,6 +4,7 @@ import com.workout_tracker.workout.dto.*;
 import com.workout_tracker.workout.exception.UsernameAlreadyExistingException;
 import com.workout_tracker.workout.exception.UsernameNotFoundException;
 import com.workout_tracker.workout.exception.WrongPasswordException;
+import com.workout_tracker.workout.jwt.JWTUtil;
 import com.workout_tracker.workout.model.User;
 import com.workout_tracker.workout.model.Workout;
 import com.workout_tracker.workout.repository.UserCredentialsRepository;
@@ -23,6 +24,7 @@ public class AuthenticationService {
     private final UserCredentialsRepository userCredentialsRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final JWTUtil jwtUtil;
 
     @Transactional
     public RegisterResponse register(RegisterRequest request){
@@ -57,7 +59,9 @@ public class AuthenticationService {
             throw new WrongPasswordException("Wrong password.Try again.");
         }
         User user = credentials.getUser();
+        String token = jwtUtil.generateToken(credentials.getUsername());
         return new LoginResponse(
+                token,
                 request.getUsername(),
                 new UserResponse(
                         user.getId(),

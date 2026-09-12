@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: workout-postgres
+    environment:
+      POSTGRES_DB: workout
+      POSTGRES_USER: workout
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - workout-pgdata:/var/lib/postgresql/data
+
+volumes:
+  workout-pgdata:
