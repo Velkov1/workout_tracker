@@ -25,6 +25,12 @@ public class ExerciseService {
         return  toExerciseResponse(exerciseRepository.save(new Exercise(request.getName(), request.getLevel())));
     }
 
+    public List<ExerciseResponse> getAll(){
+        return exerciseRepository.findAll().stream()
+                .map(this::toExerciseResponse)
+                .toList();
+    }
+
     private ExerciseResponse toExerciseResponse(Exercise exercise){
         return new ExerciseResponse(
                 exercise.getId(),

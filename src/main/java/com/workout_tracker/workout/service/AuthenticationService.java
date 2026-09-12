@@ -59,7 +59,7 @@ public class AuthenticationService {
             throw new WrongPasswordException("Wrong password.Try again.");
         }
         User user = credentials.getUser();
-        String token = jwtUtil.generateToken(credentials.getUsername());
+        String token = jwtUtil.generateToken(credentials.getUsername(), credentials.getRole().name());
         return new LoginResponse(
                 token,
                 request.getUsername(),

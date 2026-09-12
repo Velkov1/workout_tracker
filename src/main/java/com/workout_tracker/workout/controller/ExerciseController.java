@@ -24,6 +24,12 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("")
+    public ResponseEntity<List<ExerciseResponse>> getAll(){
+        List<ExerciseResponse> all = exerciseService.getAll();
+        return ResponseEntity.ok(all);
+    }
+
     @DeleteMapping("/{exerciseId}")
     public ResponseEntity<Void> deleteExercise(@PathVariable Long exerciseId){
         exerciseService.deleteExercise(exerciseId);
