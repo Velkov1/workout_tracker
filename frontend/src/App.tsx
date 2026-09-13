@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { OAuth2RedirectPage } from "./pages/OAuth2RedirectPage";
 import { WorkoutsPage } from "./pages/WorkoutsPage";
 import { CreateWorkoutPage } from "./pages/CreateWorkoutPage";
 import { WorkoutDetailPage } from "./pages/WorkoutDetailPage";
@@ -17,6 +18,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={auth ? <Navigate to="/workouts" replace /> : <LoginPage />} />
       <Route path="/register" element={auth ? <Navigate to="/workouts" replace /> : <RegisterPage />} />
+      <Route path="/oauth2/redirect" element={<OAuth2RedirectPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>

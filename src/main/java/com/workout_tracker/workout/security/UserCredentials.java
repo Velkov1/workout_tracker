@@ -21,14 +21,19 @@ public class UserCredentials {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    private AuthType authType;
+
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    public UserCredentials(String username, String password, Role role, User user) {
+    public UserCredentials(String username, String password, Role role, AuthType authType, User user) {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.authType = authType;
         this.user = user;
     }
 

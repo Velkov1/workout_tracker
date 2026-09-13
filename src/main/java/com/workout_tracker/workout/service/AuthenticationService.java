@@ -9,6 +9,7 @@ import com.workout_tracker.workout.model.User;
 import com.workout_tracker.workout.model.Workout;
 import com.workout_tracker.workout.repository.UserCredentialsRepository;
 import com.workout_tracker.workout.repository.UserRepository;
+import com.workout_tracker.workout.security.AuthType;
 import com.workout_tracker.workout.security.Role;
 import com.workout_tracker.workout.security.UserCredentials;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,7 @@ public class AuthenticationService {
                 username,
                 hashedPassword,
                 Role.USER,
+                AuthType.LOCAL,
                 user
         );
         userCredentialsRepository.save(userCredentials);
@@ -55,6 +57,11 @@ public class AuthenticationService {
     public LoginResponse login(LoginRequest request){
         UserCredentials credentials = userCredentialsRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found: " + request.getUsername()));
+
+        if(credentials.getAuthType() == AuthType.GOOGLE){
+            throw new WrongPasswordException("This account signs in with Google. Use \\\"Continue with Google\\\" instead.");
+        }
+
         if(!passwordEncoder.matches(request.getPassword(), credentials.getPassword())){
             throw new WrongPasswordException("Wrong password.Try again.");
         }
@@ -63,6 +70,54 @@ public class AuthenticationService {
         return new LoginResponse(
                 token,
                 request.getUsername(),
+                new UserResponse(
+                        user.getId(),
+                        user.getName(),
+                        user.getWorkouts().stream().map(Workout::getId).toList(),
+                        user.getCreatedAt()
+                )
+        );
+    }
+
+    @Transactional
+    public LoginResponse oAuth2LogIn(String email, String name){
+        String username = email;
+        UserCredentials credentials = userCredentialsRepository.findByUsername(username)
+                .orElseGet(() -> {
+                    User user = new User(name, new ArrayList<>());
+                    userRepository.save(user);
+                    UserCredentials userCredentials = new UserCredentials(
+                            username,
+                            null,
+                            Role.USER,
+                            AuthType.GOOGLE,
+                            user
+                    );
+                    userCredentialsRepository.save(userCredentials);
+                    return userCredentials;
+                });
+        User user = credentials.getUser();
+        String token = jwtUtil.generateToken(credentials.getUsername(), credentials.getRole().name());
+        return new LoginResponse(
+                token,
+                email,
+                new UserResponse(
+                        user.getId(),
+                        user.getName(),
+                        user.getWorkouts().stream().map(Workout::getId).toList(),
+                        user.getCreatedAt()
+                )
+        );
+
+    }
+
+    public LoginResponse me(String username, String token){
+        UserCredentials credentials = userCredentialsRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username not found:" + username));
+        User user = credentials.getUser();
+        return new LoginResponse(
+                token,
+                credentials.getUsername(),
                 new UserResponse(
                         user.getId(),
                         user.getName(),

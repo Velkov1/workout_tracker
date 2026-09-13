@@ -4,11 +4,13 @@ import com.workout_tracker.workout.dto.LoginRequest;
 import com.workout_tracker.workout.dto.LoginResponse;
 import com.workout_tracker.workout.dto.RegisterRequest;
 import com.workout_tracker.workout.dto.RegisterResponse;
+import com.workout_tracker.workout.security.CustomUserDetails;
 import com.workout_tracker.workout.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,5 +32,12 @@ public class AuthenticationController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<LoginResponse> me(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                            @RequestHeader("Authorization") String authHeader){
+        String token = authHeader.substring(7);
+        LoginResponse response = authenticationService.me(userDetails.getUsername(), token);
+        return ResponseEntity.ok(response);
+    }
 
 }

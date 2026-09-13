@@ -1,6 +1,5 @@
 package com.workout_tracker.workout.jwt;
 
-import com.workout_tracker.workout.security.CustomUserDetails;
 import com.workout_tracker.workout.security.CustomUserDetailsService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;

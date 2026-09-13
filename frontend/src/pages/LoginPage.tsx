@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authApi } from "../api/auth";
-import { ApiError } from "../api/client";
+import { ApiError, API_URL } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
 export function LoginPage() {
@@ -64,6 +64,19 @@ export function LoginPage() {
             {loading ? "Logging in..." : "Log in"}
           </button>
         </form>
+
+        <div className="my-4 flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted">or</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        <a
+          href={`${API_URL}/oauth2/authorization/google`}
+          className="flex w-full items-center justify-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-stone-50"
+        >
+          Continue with Google
+        </a>
 
         <p className="mt-6 text-center text-sm text-muted">
           Don&apos;t have an account?{" "}

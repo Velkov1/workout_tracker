@@ -33,11 +33,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthSuccessHandler authSuccessHandler) throws Exception{
         http
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests( auth -> auth
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/login/oauth2/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
@@ -48,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/users/all").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
+                .oauth2Login(oauth2 -> oauth2.successHandler(authSuccessHandler))
                 .httpBasic(Customizer.withDefaults());
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
