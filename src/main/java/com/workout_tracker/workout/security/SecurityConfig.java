@@ -26,6 +26,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private  final JwtAuthFilter jwtAuthFilter;
+    private final LoginLimitFilter loginLimitFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -53,6 +54,7 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2.successHandler(authSuccessHandler))
                 .httpBasic(Customizer.withDefaults());
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(loginLimitFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
